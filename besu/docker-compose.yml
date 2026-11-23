@@ -1,0 +1,18 @@
+version: '3.8'
+services:
+  besu-node:
+    image: hyperledger/besu:latest
+    container_name: chaintrack-besu
+    ports:
+      - "8545:8545"
+      - "8546:8546"
+      - "30303:30303"
+    volumes:
+      - ./genesis.json:/opt/besu/genesis.json
+    command: >
+      --genesis-file=/opt/besu/genesis.json
+      --rpc-http-enabled
+      --rpc-http-api=ETH,NET,WEB3,QBFT,ADMIN
+      --host-allowlist="*"
+      --rpc-http-cors-origins="*"
+      --min-gas-price=0

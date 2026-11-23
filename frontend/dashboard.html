@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ChainTrack Agro — Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen">
+  <!-- Navbar -->
+  <nav class="bg-slate-900 border-b border-slate-800 px-6 py-4 flex justify-between items-center">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-lg bg-emerald-500 flex items-center justify-center font-bold text-slate-950">CT</div>
+      <div>
+        <h1 class="font-bold text-lg leading-tight">ChainTrack Agro</h1>
+        <p id="orgBadge" class="text-xs text-emerald-400 font-medium"></p>
+      </div>
+    </div>
+    <div class="flex items-center gap-4">
+      <span id="walletBadge" class="hidden md:inline text-xs font-mono bg-slate-800 px-3 py-1.5 rounded-full text-slate-300 border border-slate-700"></span>
+      <button onclick="logout()" class="px-4 py-1.5 bg-rose-600 hover:bg-rose-700 rounded-lg text-sm font-medium">Keluar</button>
+    </div>
+  </nav>
+
+  <main class="max-w-7xl mx-auto p-6 space-y-6">
+    <!-- Panel Aksi Khusus Role Perkebunan -->
+    <section id="plantationCreatePanel" class="hidden bg-slate-900 border border-slate-800 rounded-xl p-6">
+      <h2 class="text-lg font-bold text-emerald-400 mb-4">+ Buat Batch Pengiriman Baru (Buah Campuran)</h2>
+      <form id="createBatchForm" class="grid md:grid-cols-3 gap-4">
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">Nomor Batch</label>
+          <input type="text" id="newTrackingNumber" value="CT-2026-002" required class="w-full px-3 py-2 rounded bg-slate-800 border border-slate-700 text-sm">
+        </div>
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">Tanggal Panen</label>
+          <input type="date" id="newHarvestDate" value="2026-11-24" required class="w-full px-3 py-2 rounded bg-slate-800 border border-slate-700 text-sm">
+        </div>
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">Kondisi & Kemasan</label>
+          <input type="text" id="newCondition" value="Segar, Grade A, Crate Plastik" required class="w-full px-3 py-2 rounded bg-slate-800 border border-slate-700 text-sm">
+        </div>
+
+        <div class="md:col-span-3 grid grid-cols-2 md:grid-cols-4 gap-3 bg-slate-950 p-4 rounded-lg border border-slate-800">
+          <div>
+            <label class="text-xs text-slate-400">Pisang (kg)</label>
+            <input type="number" id="qtyPisang" value="100" class="w-full mt-1 px-2.5 py-1.5 rounded bg-slate-800 border border-slate-700 text-sm">
+          </div>
+          <div>
+            <label class="text-xs text-slate-400">Mangga (kg)</label>
+            <input type="number" id="qtyMangga" value="80" class="w-full mt-1 px-2.5 py-1.5 rounded bg-slate-800 border border-slate-700 text-sm">
+          </div>
+          <div>
+            <label class="text-xs text-slate-400">Jeruk (kg)</label>
+            <input type="number" id="qtyJeruk" value="70" class="w-full mt-1 px-2.5 py-1.5 rounded bg-slate-800 border border-slate-700 text-sm">
+          </div>
+          <div>
+            <label class="text-xs text-slate-400">Apel (kg)</label>
+            <input type="number" id="qtyApel" value="50" class="w-full mt-1 px-2.5 py-1.5 rounded bg-slate-800 border border-slate-700 text-sm">
+          </div>
+        </div>
+
+        <div class="md:col-span-3 flex justify-end">
+          <button type="submit" class="px-6 py-2 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-semibold rounded-lg text-sm">
+            Simpan & Catat ke Blockchain
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Daftar Batch Aktif -->
+    <div id="batchesContainer" class="space-y-6"></div>
+  </main>
+
+  <script src="/app.js"></script>
+</body>
+</html>

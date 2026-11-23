@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ChainTrack Agro — Login & Verifikasi</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex items-center justify-center p-4">
+  <div class="max-w-4xl w-full grid md:grid-cols-2 gap-6">
+    <!-- Login Card -->
+    <div class="bg-slate-800 p-8 rounded-2xl border border-slate-700 shadow-xl">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="w-10 h-10 rounded-lg bg-emerald-500 flex items-center justify-center font-bold text-slate-900 text-xl">CT</div>
+        <div>
+          <h1 class="text-xl font-bold">ChainTrack Agro</h1>
+          <p class="text-xs text-slate-400">Hyperledger Besu Supply Chain</p>
+        </div>
+      </div>
+
+      <form id="loginForm" class="space-y-4">
+        <div>
+          <label class="block text-sm text-slate-300 mb-1">Username Organisasi</label>
+          <input type="text" id="username" required placeholder="perkebunan / gudang / supermarket"
+            class="w-full px-4 py-2.5 rounded-lg bg-slate-900 border border-slate-600 focus:border-emerald-500 outline-none">
+        </div>
+        <div>
+          <label class="block text-sm text-slate-300 mb-1">Password</label>
+          <input type="password" id="password" required value="123456"
+            class="w-full px-4 py-2.5 rounded-lg bg-slate-900 border border-slate-600 focus:border-emerald-500 outline-none">
+        </div>
+        <button type="submit" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-semibold rounded-lg transition">
+          Masuk ke Dashboard
+        </button>
+      </form>
+
+      <div class="mt-6 pt-4 border-t border-slate-700 text-xs text-slate-400 space-y-1">
+        <p class="font-semibold text-slate-300">Klik cepat akun demonstrasi (Pass: 123456):</p>
+        <div class="flex gap-2 pt-1">
+          <button onclick="fillLogin('perkebunan')" class="px-2.5 py-1 bg-slate-700 hover:bg-slate-600 rounded">Perkebunan A</button>
+          <button onclick="fillLogin('gudang')" class="px-2.5 py-1 bg-slate-700 hover:bg-slate-600 rounded">Gudang B</button>
+          <button onclick="fillLogin('supermarket')" class="px-2.5 py-1 bg-slate-700 hover:bg-slate-600 rounded">Supermarket C</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Public Hash Verifier -->
+    <div class="bg-slate-800 p-8 rounded-2xl border border-slate-700 shadow-xl flex flex-col justify-between">
+      <div>
+        <h2 class="text-lg font-bold text-amber-400 mb-2">Verifikasi Hash Blockchain</h2>
+        <p class="text-sm text-slate-400 mb-4">Cek keaslian riwayat transaksi pengiriman buah secara independen menggunakan Transaction Hash.</p>
+        <input type="text" id="verifyHashInput" placeholder="Masukkan 0x..."
+          value="0x7a9d8532c1b4e8f9a0d2c3b4a5e6f7890123456789abcdef0123456789abcdef"
+          class="w-full px-4 py-2.5 rounded-lg bg-slate-900 border border-slate-600 text-xs font-mono mb-3">
+        <button onclick="verifyTx()" class="w-full py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-semibold rounded-lg transition">
+          Verifikasi ke Ledger
+        </button>
+        <div id="verifyResult" class="mt-4 text-xs bg-slate-900 p-3 rounded-lg border border-slate-700 hidden"></div>
+      </div>
+      <div class="text-xs text-slate-500 mt-4">
+        Objek Demo: Buah-buahan Campuran (Pisang, Mangga, Jeruk, Apel - 300 kg)
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function fillLogin(role) {
+      document.getElementById('username').value = role;
+      document.getElementById('password').value = '123456';
+    }
+
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value;
+
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        localStorage.setItem('ct_token', data.token);
+        localStorage.setItem('ct_user', JSON.stringify(data.user));
+        window.location.href = '/dashboard.html';
+      } else {
+        alert(data.error);
+      }
+    });
+
+    async function verifyTx() {
+      const hash = document.getElementById('verifyHashInput').value.trim();
+      const box = document.getElementById('verifyResult');
+      const res = await fetch(`/api/verify/${hash}`);
+      const data = await res.json();
+      box.classList.remove('hidden');
+      if (data.valid) {
+        box.innerHTML = `<span class="text-emerald-400 font-bold">VALID & TERVERIFIKASI</span><br>
+          Batch: <b>${data.record.tracking_number}</b> (${data.record.total_weight_kg} kg)<br>
+          Aksi: ${data.record.action} | Block: #${data.record.block_number}<br>
+          Status Batch: ${data.record.current_batch_status}`;
+      } else {
+        box.innerHTML = `<span class="text-rose-400 font-bold">TIDAK DITEMUKAN:</span> ${data.message}`;
+      }
+    }
+  </script>
+</body>
+</html>
