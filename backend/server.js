@@ -142,6 +142,10 @@ app.get('/api/verify/:txHash', async (req, res) => {
   res.json({ valid: true, record: rows[0] });
 });
 
-app.listen(PORT, () => {
-  console.log(`ChainTrack Agro (XAMPP MySQL Mode) berjalan di http://localhost:${PORT}`);
-});
+if (process.env.NODE_ENV !== 'production') {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => console.log(`Server berjalan di port ${PORT}`));
+}
+
+// Wajib ada untuk Vercel
+module.exports = app;

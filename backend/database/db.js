@@ -1,11 +1,20 @@
 const mysql = require('mysql2/promise');
 const bcrypt = require('bcryptjs');
 
+const isProduction = process.env.NODE_ENV === 'production' || Boolean(process.env.DB_HOST);
+
 const pool = mysql.createPool({
-  host: '127.0.0.1',
-  user: 'root',      // Default user XAMPP
-  password: '',      // Default password XAMPP kosong
-  database: 'chaintrack_agro',
+  host: process.env.DB_HOST || '127.0.0.1',
+  port: Number(process.env.DB_PORT) || 3306,
+  user: process.env.DB_USER || 'root',
+  password: process.env.DB_PASSWORD || '',
+  database: process.env.DB_NAME || 'chaintrack_agro',
+  ssl: isProduction
+    ? {
+        minVersion: 'TLSv1.2',
+        rejectUnauthorized: true
+      }
+    : undefined,
   waitForConnections: true,
   connectionLimit: 10
 });
