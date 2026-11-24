@@ -9,6 +9,7 @@ const pool = mysql.createPool({
   user: process.env.DB_USER || 'root',
   password: process.env.DB_PASSWORD || '',
   database: process.env.DB_NAME || 'chaintrack_agro',
+  connectTimeout: 10000,
   ssl: isProduction
     ? {
         minVersion: 'TLSv1.2',
@@ -16,7 +17,7 @@ const pool = mysql.createPool({
       }
     : undefined,
   waitForConnections: true,
-  connectionLimit: 10
+  connectionLimit: 5
 });
 
 async function initDatabase() {

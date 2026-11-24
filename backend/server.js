@@ -15,7 +15,9 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '../frontend')));
 
-initDatabase().catch(err => console.error('Gagal koneksi MySQL XAMPP:', err.message));
+if (process.env.NODE_ENV !== 'production') {
+  initDatabase().catch(err => console.error('Gagal koneksi MySQL:', err.message));
+}
 
 function authMiddleware(req, res, next) {
   const authHeader = req.headers.authorization;
@@ -29,18 +31,23 @@ function authMiddleware(req, res, next) {
 }
 
 app.post('/api/login', async (req, res) => {
-  const { username, password } = req.body;
-  const [users] = await pool.query("SELECT * FROM users WHERE username = ?", [username]);
-  const user = users[0];
-  if (!user || !bcrypt.compareSync(password, user.password)) {
-    return res.status(401).json({ error: 'Username atau password salah' });
+  try {
+    const { username, password } = req.body;
+    const [users] = await pool.query("SELECT * FROM users WHERE username = ?", [username]);
+    const user = users[0];
+    if (!user || !bcrypt.compareSync(password, user.password)) {
+      return res.status(401).json({ error: 'Username atau password salah' });
+    }
+    const token = jwt.sign(
+      { id: user.id, username: user.username, role: user.role, org_name: user.org_name, wallet: user.wallet_address },
+      JWT_SECRET,
+      { expiresIn: '12h' }
+    );
+    res.json({ token, user: { username: user.username, role: user.role, org_name: user.org_name, wallet: user.wallet_address } });
+  } catch (err) {
+    console.error('Login error:', err);
+    res.status(500).json({ error: 'Database error: ' + err.message });
   }
-  const token = jwt.sign(
-    { id: user.id, username: user.username, role: user.role, org_name: user.org_name, wallet: user.wallet_address },
-    JWT_SECRET,
-    { expiresIn: '12h' }
-  );
-  res.json({ token, user: { username: user.username, role: user.role, org_name: user.org_name, wallet: user.wallet_address } });
 });
 
 app.get('/api/batches', authMiddleware, async (req, res) => {
